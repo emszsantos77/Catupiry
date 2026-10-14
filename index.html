@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio Volume Catupiry - Acompanhamento Comercial</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        catupiryRed: '#D3122A', 
+                        catupiryBlue: '#00529C', 
+                        catupiryGold: '#F5A623',
+                        darkBg: '#0B0F19', 
+                        darkCard: '#131A2C' 
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darkBg text-slate-100 antialiased min-h-screen">
+
+    <!-- HEADER INSTITUCIONAL -->
+    <header class="bg-catupiryRed p-4 shadow-lg flex flex-col sm:flex-row justify-between items-center border-b-4 border-catupiryGold gap-4">
+        <div class="flex items-center gap-4">
+            <div class="bg-white p-1.5 rounded-lg shadow">
+                <span class="text-catupiryRed font-black tracking-tighter text-xl px-2">CATUPIRY</span>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-white tracking-wide">Desafio Volume Catupiry</h1>
+                <p class="text-xs text-white/80">Dashboard de Performance Comercial & Apuração da Campanha</p>
+            </div>
+        </div>
+        <div class="bg-white/10 backdrop-blur-md text-white px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-2 border border-white/20">
+            <span class="h-2.5 w-2.5 rounded-full bg-catupiryGold animate-pulse"></span> Atualização em Tempo Real
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="p-4 sm:p-6 max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6">
+        
+        <!-- FILTROS LATERAIS MULTIPLOS -->
+        <section class="lg:col-span-1 bg-darkCard p-4 rounded-xl border border-slate-800 flex flex-col justify-between shadow-xl">
+            <div>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-catupiryGold font-bold text-sm tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-filter"></i> Filtros Estratégicos
+                    </h2>
+                    <button onclick="clearFilters()" class="text-xs text-slate-400 hover:text-catupiryRed transition">Limpar Tudo</button>
+                </div>
+                
+                <div class="space-y-4 text-xs">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Ano (Múltiplo)</label>
+                        <select id="filter-ano" multiple onchange="updateDashboard()" class="w-full bg-darkBg border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-catupiryRed outline-none h-20 custom-multiselect"></select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Mês (Múltiplo)</label>
+                        <select id="filter-mes" multiple onchange="updateDashboard()" class="w-full bg-darkBg border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-catupiryRed outline-none h-24 custom-multiselect"></select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Supervisor (Múltiplo)</label>
+                        <select id="filter-supervisor" multiple onchange="updateDashboard()" class="w-full bg-darkBg border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-catupiryRed outline-none h-24 custom-multiselect"></select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Vendedor (Múltiplo)</label>
+                        <select id="filter-vendedor" multiple onchange="updateDashboard()" class="w-full bg-darkBg border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-catupiryRed outline-none h-24 custom-multiselect"></select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Cidade (Múltiplo)</label>
+                        <select id="filter-cidade" multiple onchange="updateDashboard()" class="w-full bg-darkBg border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-catupiryRed outline-none h-24 custom-multiselect"></select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Produto (Múltiplo)</label>
+                        <select id="filter-produto" multiple onchange="updateDashboard()" class="w-full bg-darkBg border border-slate-700 rounded-lg p-2 text-slate-200 focus:border-catupiryRed outline-none h-24 custom-multiselect"></select>
+                    </div>
+                    
+                    <div class="pt-4 border-t border-slate-800">
+                        <button onclick="openGlobalRankingModal()" class="w-full bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-900 font-extrabold py-3 px-4 rounded-xl shadow-lg hover:shadow-yellow-500/10 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider">
+                            <i class="fa-solid fa-trophy text-sm"></i> Ranking da Campanha
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DASHBOARD CONTENT -->
+        <section class="lg:col-span-4 space-y-6">
+            
+            <!-- BARRA DE GATILHO DA DISTRIBUIDORA (12.000 KG) -->
+            <div class="bg-darkCard p-4 rounded-xl border border-slate-800 shadow-xl">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-2 gap-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-bullseye text-catupiryRed"></i> Gatilho de Validação da Distribuidora (Outubro)
+                        </h3>
+                        <p class="text-xs text-slate-400">Meta mínima: 12.000 KG em Sell Out para liberar o pagamento das premiações</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="kpi-distribuidora-kg" class="text-lg font-black text-catupiryGold">0,00 KG</span>
+                        <span class="text-xs text-slate-400">/ 12.000,00 KG</span>
+                    </div>
+                </div>
+                <div class="w-full bg-darkBg h-4 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                    <div id="progress-bar-distribuidora" class="bg-gradient-to-r from-catupiryRed via-amber-500 to-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p id="progress-status-text" class="text-[11px] text-slate-400 mt-1.5 text-right font-medium">Calculando atingimento...</p>
+            </div>
+
+            <!-- KPIs PRINCIPAIS (TEXTOS AJUSTADOS SEM "MÉDIA") -->
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                <div class="bg-darkCard p-3.5 rounded-xl border-l-4 border-catupiryRed shadow">
+                    <p class="text-[10px] text-slate-400 font-medium uppercase">Fat. Líquido</p>
+                    <p id="kpi-faturamento" class="text-xl font-bold mt-1 text-white">R$ 0,00</p>
+                    <span id="mom-faturamento" class="text-[11px] font-semibold block mt-1 text-slate-400">MoM: --</span>
+                </div>
+                <div class="bg-darkCard p-3.5 rounded-xl border-l-4 border-catupiryGold shadow">
+                    <p class="text-[10px] text-slate-400 font-medium uppercase">Posit. Líquida</p>
+                    <p id="kpi-positivacao" class="text-xl font-bold mt-1 text-white">0 Clientes</p>
+                    <span id="mom-positivacao" class="text-[11px] font-semibold block mt-1 text-slate-400">MoM: --</span>
+                </div>
+                <div class="bg-darkCard p-3.5 rounded-xl border-l-4 border-emerald-500 shadow">
+                    <p class="text-[10px] text-slate-400 font-medium uppercase">Volume Total (KG)</p>
+                    <p id="kpi-peso-kg" class="text-xl font-bold mt-1 text-emerald-400">0,00 KG</p>
+                    <span id="mom-peso-kg" class="text-[11px] font-semibold block mt-1 text-slate-400">MoM: --</span>
+                </div>
+                <div class="bg-darkCard p-3.5 rounded-xl border-l-4 border-amber-600 shadow">
+                    <p class="text-[10px] text-slate-400 font-medium uppercase">Ticket Médio / Clt</p>
+                    <p id="kpi-ticket" class="text-xl font-bold mt-1 text-amber-500">R$ 0,00</p>
+                    <span id="mom-ticket" class="text-[11px] font-semibold block mt-1 text-slate-400">MoM: --</span>
+                </div>
+                <div class="bg-darkCard p-3.5 rounded-xl border-l-4 border-sky-500 shadow">
+                    <p class="text-[10px] text-slate-400 font-medium uppercase">Volume Pouch 250g</p>
+                    <p id="kpi-pouch-kg" class="text-xl font-bold mt-1 text-sky-400">0,00 KG</p>
+                    <span id="mom-pouch" class="text-[11px] font-semibold block mt-1 text-slate-400">Desempate Oficial</span>
+                </div>
+            </div>
+
+            <!-- GRÁFICOS -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-darkCard p-5 rounded-xl border border-slate-800">
+                    <h3 class="text-sm font-bold text-catupiryGold mb-4 flex items-center gap-2">📈 Evolução Histórica & Positivação</h3>
+                    <div class="h-64 relative">
+                        <canvas id="chart-evolucao"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-darkCard p-5 rounded-xl border border-slate-800">
+                    <h3 class="text-sm font-bold text-emerald-400 mb-4 flex items-center gap-2">⚖️ Evolução Histórica & Volume em KG</h3>
+                    <div class="h-64 relative">
+                        <canvas id="chart-evolucao-qtd"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABELAS TOP 5 -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="bg-darkCard p-4 rounded-xl border border-slate-800">
+                    <h3 class="text-sm font-bold text-catupiryGold mb-3 flex items-center gap-2">📦 Top 5 Produtos por Faturamento</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead>
+                                <tr class="border-b border-slate-700 text-slate-400">
+                                    <th class="py-2">PRODUTO</th>
+                                    <th class="py-2 text-right">FAT. LÍQUIDO</th>
+                                    <th class="py-2 text-right">POSITIVAÇÃO</th>
+                                    <th class="py-2 text-right">VOLUME (KG)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-produtos"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-darkCard p-4 rounded-xl border border-slate-800">
+                    <h3 class="text-sm font-bold text-catupiryGold mb-3 flex items-center gap-2">📍 Top 5 Cidades por Performance</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead>
+                                <tr class="border-b border-slate-700 text-slate-400">
+                                    <th class="py-2">CIDADE</th>
+                                    <th class="py-2 text-right">FAT. LÍQUIDO</th>
+                                    <th class="py-2 text-right">POSITIVAÇÃO</th>
+                                    <th class="py-2 text-right">VOLUME (KG)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-cidades"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUPERVISÃO - OUTUBRO ESPECÍFICO COM POUCH -->
+            <div class="bg-darkCard p-5 rounded-xl border border-slate-800">
+                <h3 class="text-sm font-bold text-catupiryGold mb-4 flex items-center gap-2">👑 Performance de Supervisão - Outubro (Premiação Top 2)</h3>
+                <div id="supervisors-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- MODAL DE RANKING GERAL DA CAMPANHA -->
+    <div id="global-ranking-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-50 p-2 sm:p-4">
+        <div class="bg-darkCard border border-slate-700 p-4 sm:p-6 rounded-2xl max-w-[1300px] w-full relative mx-auto flex flex-col h-[90vh]">
+            <button onclick="closeModal('global-ranking-modal')" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 h-10 w-10 flex items-center justify-center rounded-full transition z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
+            
+            <div class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 md:pt-0">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl">🏆</span>
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-bold text-white tracking-wide">Ranking Oficial - Desafio Volume Catupiry</h3>
+                        <p class="text-xs text-slate-400">Classificação por Volume em KG | Desempate por Pouch 250g</p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs text-slate-400 whitespace-nowrap">Filtrar Mês:</label>
+                        <select id="ranking-filter-mes" onchange="buildGlobalRankingTable()" class="bg-darkBg border border-slate-700 rounded-lg p-2 text-sm text-slate-200 focus:border-catupiryRed outline-none min-w-[150px]"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-x-auto min-h-0">
+                <div class="inline-block min-w-full align-middle h-full overflow-y-auto">
+                    <table class="w-full text-left text-sm text-slate-300">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-slate-400 sticky top-0 bg-darkCard z-10 text-xs uppercase">
+                                <th class="py-3 px-2 text-center w-20">Posição</th>
+                                <th class="py-3 px-4 w-16">Foto</th>
+                                <th class="py-3 px-4">Vendedor</th>
+                                <th class="py-3 px-4">Supervisor</th>
+                                <th class="py-3 px-4 text-right">Volume Total (KG)</th>
+                                <th class="py-3 px-4 text-right">Pouch 250g (Desempate)</th>
+                                <th class="py-3 px-4 text-center">Premiação Estimada</th>
+                                <th class="py-3 px-4 text-right">Fat. Líquido</th>
+                            </tr>
+                        </thead>
+                        <tbody id="global-ranking-body" class="divide-y divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PRODUTO -->
+    <div id="product-modal" class="fixed inset-0 bg-black/85 flex items-center justify-center hidden z-50">
+        <div class="bg-darkCard border border-slate-700 p-6 rounded-2xl max-w-lg w-full relative mx-4">
+            <button onclick="closeModal('product-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <div class="flex items-center gap-4 mb-6">
+                <img id="prod-modal-img" class="h-16 w-16 rounded object-contain border-2 border-slate-700 bg-white p-1" src="" alt="" onerror="this.src='https://via.placeholder.com/150/131a2c/ffffff?text=CAT'">
+                <div>
+                    <h3 id="prod-modal-name" class="text-md font-bold text-white">Nome do Produto</h3>
+                    <p id="prod-modal-code" class="text-xs text-slate-400">Análise de Performance Comercial</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-darkBg p-3 rounded-lg">
+                    <p class="text-[10px] text-slate-400 uppercase">Faturamento Acumulado</p>
+                    <p id="prod-modal-fat" class="text-sm font-bold text-white">R$ 0,00</p>
+                </div>
+                <div class="bg-darkBg p-3 rounded-lg">
+                    <p class="text-[10px] text-slate-400 uppercase">Volume Vendido</p>
+                    <p id="prod-modal-pos" class="text-sm font-bold text-emerald-400">0,00 KG</p>
+                </div>
+            </div>
+            <h4 class="text-xs font-bold text-catupiryGold uppercase mb-3">Evolução Mensal do Produto</h4>
+            <div id="prod-modal-mom-list" class="space-y-2 max-h-40 overflow-y-auto pr-2"></div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT PRINCIPAL -->
+    <script>
+        let myChart = null;
+        let myChartQtd = null;
+        let globalData = [];
+        let currentRankingData = []; 
+        const mesesOrdem = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+        const premiacaoVendedores = {
+            1: 500, 2: 450, 3: 400, 4: 350, 5: 300,
+            6: 250, 7: 250, 8: 200, 9: 200, 10: 150,
+            11: 150, 12: 100, 13: 100, 14: 100, 15: 100
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch('data.json?t=' + new Date().getTime())
+                .then(response => {
+                    if (!response.ok) throw new Error("Erro de rede");
+                    return response.json();
+                })
+                .then(data => {
+                    globalData = data;
+                    populateFilters();
+                    enableToggleMultiSelect();
+                    updateDashboard();
+                    populateRankingMonthFilter();
+                })
+                .catch(err => console.error("Erro na inicialização:", err));
+        });
+
+        function enableToggleMultiSelect() {
+            document.querySelectorAll('select.custom-multiselect').forEach(select => {
+                select.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    const option = e.target.closest('option');
+                    if (!option) return;
+                    option.selected = !option.selected;
+                    select.focus();
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+            });
+        }
+
+        function getSelectValues(id) {
+            const select = document.getElementById(id);
+            if (!select) return [];
+            return Array.from(select.selectedOptions).map(option => option.value).filter(val => val !== "");
+        }
+
+        function getFilteredData() {
+            const fAnos = getSelectValues('filter-ano');
+            const fMeses = getSelectValues('filter-mes');
+            const fSups = getSelectValues('filter-supervisor');
+            const fVens = getSelectValues('filter-vendedor');
+            const fCidades = getSelectValues('filter-cidade');
+            const fProds = getSelectValues('filter-produto');
+
+            return globalData.filter(item => {
+                const ano = String(item.Ano || '');
+                const mes = String(item.Mês || '');
+                const sup = item.Supervisor || '';
+                const ven = item.Vendedor || '';
+                const cid = item.Cidade || '';
+                const prod = item.Produto || '';
+
+                return (fAnos.length === 0 || fAnos.includes(ano)) &&
+                       (fMeses.length === 0 || fMeses.includes(mes)) &&
+                       (fSups.length === 0 || fSups.includes(sup)) &&
+                       (fVens.length === 0 || fVens.includes(ven)) &&
+                       (fCidades.length === 0 || fCidades.includes(cid)) &&
+                       (fProds.length === 0 || fProds.includes(prod));
+            });
+        }
+
+        function populateFilters() {
+            const anos = [...new Set(globalData.map(item => item.Ano))].filter(Boolean);
+            const meses = [...new Set(globalData.map(item => item.Mês))].filter(Boolean);
+            const supervisores = [...new Set(globalData.map(item => item.Supervisor))].filter(Boolean);
+            const vendedores = [...new Set(globalData.map(item => item.Vendedor))].filter(Boolean);
+            const cidades = [...new Set(globalData.map(item => item.Cidade))].filter(Boolean);
+            const produtos = [...new Set(globalData.map(item => item.Produto))].filter(Boolean);
+
+            buildSelect('filter-ano', anos);
+            buildSelect('filter-mes', meses.sort((a, b) => mesesOrdem.indexOf(a) - mesesOrdem.indexOf(b)));
+            buildSelect('filter-supervisor', supervisores);
+            buildSelect('filter-vendedor', vendedores);
+            buildSelect('filter-cidade', cidades);
+            buildSelect('filter-produto', produtos);
+        }
+
+        function buildSelect(id, items) {
+            const select = document.getElementById(id);
+            if (!select) return;
+            select.innerHTML = items.map(item => `<option value="${item}">${item}</option>`).join('');
+        }
+
+        function populateRankingMonthFilter() {
+            const meses = [...new Set(globalData.map(item => item.Mês))].filter(Boolean);
+            const select = document.getElementById('ranking-filter-mes');
+            if (!select) return;
+            
+            const mesesOrdenados = meses.sort((a, b) => mesesOrdem.indexOf(a) - mesesOrdem.indexOf(b));
+            select.innerHTML = `<option value="">Todos os Meses</option>` + 
+                mesesOrdenados.map(m => `<option value="${m}">${m}</option>`).join('');
+            
+            if (mesesOrdenados.includes("Outubro")) {
+                select.value = "Outubro";
+            }
+        }
+
+        function updateDashboard() {
+            const filtered = getFilteredData();
+
+            let totalFatLiquido = 0;
+            let totalPesoKG = 0;
+            let totalPouch = 0;
+            let totalVolumeOutubro = 0;
+            let conjuntoClientes = new Set();
+            let mensalConsolidado = {};
+
+            filtered.forEach(item => {
+                const mes = item.Mês || "Desconhecido";
+                const vLiquida = parseFloat(item.FaturamentoLiquido || 0);
+                const pesoKG = parseFloat(item.Peso_KG || 0);
+                const pesoPouch = parseFloat(item.Peso_Pouch250_KG || 0);
+                const cliente = item.Cliente || "";
+
+                if (mes === "Outubro") {
+                    totalVolumeOutubro += pesoKG;
+                }
+
+                totalFatLiquido += vLiquida;
+                totalPesoKG += pesoKG;
+                totalPouch += pesoPouch;
+                if (cliente && vLiquida > 0) conjuntoClientes.add(cliente);
+
+                if (!mensalConsolidado[mes]) {
+                    mensalConsolidado[mes] = { fatLiquido: 0, pesoKG: 0, pesoPouch: 0, clientes: new Set() };
+                }
+
+                mensalConsolidado[mes].fatLiquido += vLiquida;
+                mensalConsolidado[mes].pesoKG += pesoKG;
+                mensalConsolidado[mes].pesoPouch += pesoPouch;
+                if (cliente && vLiquida > 0) mensalConsolidado[mes].clientes.add(cliente);
+            });
+
+            // Atualização do Gatilho da Distribuidora (12.000 KG)
+            const elDistribuidoraKG = document.getElementById('kpi-distribuidora-kg');
+            const elProgressBar = document.getElementById('progress-bar-distribuidora');
+            const elStatusText = document.getElementById('progress-status-text');
+
+            elDistribuidoraKG.innerText = `${totalVolumeOutubro.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} KG`;
+            const pctMeta = Math.min((totalVolumeOutubro / 12000) * 100, 100);
+            elProgressBar.style.width = `${pctMeta}%`;
+
+            if (totalVolumeOutubro >= 12000) {
+                elStatusText.innerHTML = `<span class="text-emerald-400 font-bold">🟢 GATILHO ATINGIDO! Premiações validadas.</span>`;
+            } else {
+                const faltam = 12000 - totalVolumeOutubro;
+                elStatusText.innerHTML = `<span class="text-amber-400 font-semibold">🟡 Faltam ${faltam.toLocaleString('pt-BR', {minimumFractionDigits: 2})} KG para atingir o gatilho global.</span>`;
+            }
+
+            const totalClientesPositivados = conjuntoClientes.size;
+            const ticketMedio = totalClientesPositivados > 0 ? (totalFatLiquido / totalClientesPositivados) : 0;
+
+            // Atualização dos cartões de KPI com os totais diretos sem o rótulo "Média"
+            document.getElementById('kpi-faturamento').innerText = formatCurrency(totalFatLiquido);
+            document.getElementById('kpi-positivacao').innerText = `${totalClientesPositivados} Clientes`;
+            document.getElementById('kpi-peso-kg').innerText = `${totalPesoKG.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} KG`;
+            document.getElementById('kpi-ticket').innerText = formatCurrency(ticketMedio);
+            document.getElementById('kpi-pouch-kg').innerText = `${totalPouch.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} KG`;
+
+            const mesesAtivos = Object.keys(mensalConsolidado).sort((a, b) => mesesOrdem.indexOf(a) - mesesOrdem.indexOf(b));
+
+            renderTopProdutos(filtered);
+            renderTopCidades(filtered);
+            renderSupervisors(filtered);
+            renderChart(mesesAtivos, mensalConsolidado);
+        }
+
+        function renderTopProdutos(filteredData) {
+            let prodMesData = {};
+            filteredData.forEach(item => {
+                const prod = item.Produto;
+                const cod = item.CodigoProduto;
+                const vLiquida = parseFloat(item.FaturamentoLiquido || 0);
+                const pesoKG = parseFloat(item.Peso_KG || 0);
+                const cliente = item.Cliente || "";
+
+                if (!prod) return;
+                if (!prodMesData[prod]) prodMesData[prod] = { cod: cod, fat: 0, pesoKG: 0, clientes: new Set() };
+
+                prodMesData[prod].fat += vLiquida;
+                prodMesData[prod].pesoKG += pesoKG;
+                if (cliente && vLiquida > 0) prodMesData[prod].clientes.add(cliente);
+            });
+
+            let list = Object.entries(prodMesData).map(([name, info]) => ({
+                name, cod: info.cod, fat: info.fat, pos: info.clientes.size, pesoKG: info.pesoKG
+            })).sort((a, b) => b.fat - a.fat).slice(0, 5);
+
+            const tbody = document.getElementById('table-produtos');
+            tbody.innerHTML = list.map(p => `
+                <tr onclick="openProductModal('${p.name}', '${p.cod}', ${p.fat}, ${p.pesoKG})" class="border-b border-slate-800 hover:bg-slate-800/40 transition cursor-pointer">
+                    <td class="py-2 flex items-center gap-2">
+                        <img src="Imagens_produtos/${p.cod}.png" class="h-8 w-8 rounded object-cover bg-white shrink-0" onerror="this.src='https://via.placeholder.com/50?text=CAT'">
+                        <span class="font-medium text-slate-200 truncate max-w-[130px] underline decoration-dotted">${p.name}</span>
+                    </td>
+                    <td class="py-2 text-right font-semibold text-white">${formatCurrency(p.fat)}</td>
+                    <td class="py-2 text-right text-slate-300">${p.pos} Clts</td>
+                    <td class="py-2 text-right text-emerald-400 font-semibold">${p.pesoKG.toFixed(2)} KG</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderTopCidades(filteredData) {
+            let cityData = {};
+            filteredData.forEach(item => {
+                const city = item.Cidade;
+                const vLiquida = parseFloat(item.FaturamentoLiquido || 0);
+                const pesoKG = parseFloat(item.Peso_KG || 0);
+                const cliente = item.Cliente || "";
+
+                if (!city) return;
+                if (!cityData[city]) cityData[city] = { fat: 0, pesoKG: 0, clientes: new Set() };
+
+                cityData[city].fat += vLiquida;
+                cityData[city].pesoKG += pesoKG;
+                if (cliente && vLiquida > 0) cityData[city].clientes.add(cliente);
+            });
+
+            let list = Object.entries(cityData).map(([name, info]) => ({
+                name, fat: info.fat, pos: info.clientes.size, pesoKG: info.pesoKG
+            })).sort((a, b) => b.fat - a.fat).slice(0, 5);
+
+            const tbody = document.getElementById('table-cidades');
+            tbody.innerHTML = list.map(c => `
+                <tr class="border-b border-slate-800 hover:bg-slate-800/40 transition">
+                    <td class="py-2 font-medium text-slate-200 max-w-[120px] truncate">${c.name}</td>
+                    <td class="py-2 text-right font-semibold text-white">${formatCurrency(c.fat)}</td>
+                    <td class="py-2 text-right text-slate-300">${c.pos} Clts</td>
+                    <td class="py-2 text-right text-emerald-400 font-semibold">${c.pesoKG.toFixed(2)} KG</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderSupervisors(filteredData) {
+            const container = document.getElementById('supervisors-grid');
+            container.innerHTML = "";
+
+            // Filtra exclusivamente o mês de Outubro para a apuração da campanha
+            const dataOutubro = filteredData.filter(item => item.Mês === "Outubro");
+
+            let supData = {};
+            dataOutubro.forEach(item => {
+                const sup = item.Supervisor;
+                const cod = item.CodigoSupervisor || "";
+                if (!sup) return;
+
+                if (!supData[sup]) {
+                    supData[sup] = { fat: 0, pesoKG: 0, pesoPouchKG: 0, cod: cod };
+                }
+                
+                supData[sup].fat += parseFloat(item.FaturamentoLiquido || 0);
+                supData[sup].pesoKG += parseFloat(item.Peso_KG || 0);
+                supData[sup].pesoPouchKG += parseFloat(item.Peso_Pouch250_KG || 0);
+            });
+
+            // Ordenação Oficial: 1º Volume Total KG | 2º Volume Pouch 250g (Desempate)
+            const sortedSups = Object.entries(supData).sort((a, b) => {
+                if (b[1].pesoKG !== a[1].pesoKG) return b[1].pesoKG - a[1].pesoKG;
+                return b[1].pesoPouchKG - a[1].pesoPouchKG;
+            });
+
+            if (sortedSups.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 col-span-3 text-center py-4">Nenhum dado encontrado para o mês de Outubro.</p>`;
+                return;
+            }
+
+            sortedSups.forEach(([name, info], index) => {
+                const cleanCode = String(info.cod).trim();
+                const imgSrc = `Imagens_Supervisores/${cleanCode}.png`;
+                
+                let premioTag = "";
+                if (index === 0) {
+                    premioTag = `<span class="text-[10px] bg-emerald-500/10 text-emerald-400 font-bold px-2 py-0.5 rounded border border-emerald-500/20">🥇 1º Sup - R$ 600</span>`;
+                } else if (index === 1) {
+                    premioTag = `<span class="text-[10px] bg-blue-500/10 text-sky-400 font-bold px-2 py-0.5 rounded border border-blue-500/20">🥈 2º Sup - R$ 400</span>`;
+                }
+
+                container.innerHTML += `
+                    <div class="bg-darkBg border border-slate-800 p-4 rounded-xl flex items-center gap-4 hover:border-catupiryGold/50 transition shadow-lg">
+                        <img class="h-16 w-16 rounded-full object-cover border-2 border-slate-700 bg-slate-800 shrink-0" src="${imgSrc}" onerror="this.src='https://via.placeholder.com/150/131a2c/ffffff?text=${name.substring(0,1)}'">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-1 mb-1">
+                                <h4 class="text-sm font-bold text-white truncate">${name}</h4>
+                                ${premioTag}
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-xs text-slate-300 font-semibold">${formatCurrency(info.fat)}</p>
+                                <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-800/80">
+                                    <span class="text-emerald-400 font-bold">${info.pesoKG.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} KG</span>
+                                    <span class="text-sky-400 font-semibold text-[11px]" title="Critério Oficial de Desempate">${info.pesoPouchKG.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} KG Pouch</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function buildGlobalRankingTable() {
+            const selectedMonth = document.getElementById('ranking-filter-mes').value;
+            let vendData = {};
+
+            const filteredData = getFilteredData();
+            const dataToRank = filteredData.filter(item => !selectedMonth || item.Mês === selectedMonth);
+
+            dataToRank.forEach(item => {
+                const ven = item.Vendedor;
+                const cod = item.CodigoVendedor;
+                const sup = item.Supervisor || "Sem Supervisor";
+                const vLiquida = parseFloat(item.FaturamentoLiquido || 0);
+                const pesoKG = parseFloat(item.Peso_KG || 0);
+                const pesoPouch = parseFloat(item.Peso_Pouch250_KG || 0);
+
+                if (!ven) return;
+                if (!vendData[ven]) vendData[ven] = { cod: cod, supervisor: sup, fat: 0, pesoKG: 0, pesoPouch: 0 };
+
+                vendData[ven].fat += vLiquida;
+                vendData[ven].pesoKG += pesoKG;
+                vendData[ven].pesoPouch += pesoPouch;
+            });
+
+            currentRankingData = Object.entries(vendData).map(([name, info]) => ({
+                name,
+                cod: info.cod,
+                supervisor: info.supervisor,
+                pesoKG: info.pesoKG,
+                pesoPouch: info.pesoPouch,
+                fat: info.fat
+            })).sort((a, b) => {
+                if (b.pesoKG !== a.pesoKG) return b.pesoKG - a.pesoKG;
+                return b.pesoPouch - a.pesoPouch;
+            });
+
+            const tbody = document.getElementById('global-ranking-body');
+            tbody.innerHTML = currentRankingData.map((vendedor, index) => {
+                const pos = index + 1;
+                let medalha = `${pos}º`;
+                if (pos === 1) medalha = "🥇 1º";
+                else if (pos === 2) medalha = "🥈 2º";
+                else if (pos === 3) medalha = "🥉 3º";
+
+                const premioValor = premiacaoVendedores[pos] || 0;
+                const premioTag = premioValor > 0 
+                    ? `<span class="bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20 px-3 py-1 rounded-full text-xs">R$ ${premioValor},00</span>` 
+                    : `<span class="text-slate-500 text-xs">--</span>`;
+
+                const cleanCode = String(vendedor.cod).trim();
+
+                return `
+                    <tr class="hover:bg-slate-800/40 transition border-b border-slate-800">
+                        <td class="py-3 px-2 text-center font-bold text-white text-sm">${medalha}</td>
+                        <td class="py-3 px-4">
+                            <img class="h-10 w-10 rounded-full object-cover border border-slate-700 bg-slate-800 shrink-0" src="Imagens_Vendedores/${cleanCode}.png" onerror="this.src='https://via.placeholder.com/100/131a2c/ffffff?text=${cleanCode}'">
+                        </td>
+                        <td class="py-3 px-4 font-semibold text-slate-200">
+                            ${vendedor.name} <span class="text-xs text-slate-500">(Cod: ${cleanCode})</span>
+                        </td>
+                        <td class="py-3 px-4 font-medium text-slate-400">${vendedor.supervisor}</td>
+                        <td class="py-3 px-4 text-right font-black text-emerald-400 text-base">${vendedor.pesoKG.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} KG</td>
+                        <td class="py-3 px-4 text-right font-semibold text-sky-400 text-xs">${vendedor.pesoPouch.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} KG</td>
+                        <td class="py-3 px-4 text-center">${premioTag}</td>
+                        <td class="py-3 px-4 text-right font-semibold text-slate-200">${formatCurrency(vendedor.fat)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderChart(meses, dados) {
+            const ctxPos = document.getElementById('chart-evolucao').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctxPos, {
+                data: {
+                    labels: meses,
+                    datasets: [
+                        { type: 'line', label: 'Fat. Líquido (R$)', data: meses.map(m => dados[m].fatLiquido), borderColor: '#D3122A', borderWidth: 3, yAxisID: 'yFat' },
+                        { type: 'bar', label: 'Clientes Positivados', data: meses.map(m => dados[m].clientes.size), backgroundColor: 'rgba(245, 166, 35, 0.4)', yAxisID: 'yPos' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        yFat: { type: 'linear', position: 'left', grid: { color: '#1e293b' } },
+                        yPos: { type: 'linear', position: 'right', grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+
+            const ctxQtd = document.getElementById('chart-evolucao-qtd').getContext('2d');
+            if (myChartQtd) myChartQtd.destroy();
+
+            myChartQtd = new Chart(ctxQtd, {
+                data: {
+                    labels: meses,
+                    datasets: [
+                        { type: 'line', label: 'Fat. Líquido (R$)', data: meses.map(m => dados[m].fatLiquido), borderColor: '#D3122A', borderWidth: 3, yAxisID: 'yFat' },
+                        { type: 'bar', label: 'Volume (KG)', data: meses.map(m => dados[m].pesoKG), backgroundColor: 'rgba(16, 185, 129, 0.4)', yAxisID: 'yQtd' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        yFat: { type: 'linear', position: 'left', grid: { color: '#1e293b' } },
+                        yQtd: { type: 'linear', position: 'right', grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+        }
+
+        function formatCurrency(val) {
+            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function openGlobalRankingModal() {
+            buildGlobalRankingTable();
+            document.getElementById('global-ranking-modal').classList.remove('hidden');
+        }
+
+        function openProductModal(name, cod, fat, peso) {
+            document.getElementById('prod-modal-name').innerText = name;
+            document.getElementById('prod-modal-code').innerText = `Código: ${cod}`;
+            document.getElementById('prod-modal-fat').innerText = formatCurrency(fat);
+            document.getElementById('prod-modal-pos').innerText = `${peso.toFixed(2)} KG`;
+            document.getElementById('prod-modal-img').src = `Imagens_produtos/${cod}.png`;
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function clearFilters() {
+            ['filter-ano', 'filter-mes', 'filter-supervisor', 'filter-vendedor', 'filter-cidade', 'filter-produto'].forEach(id => {
+                const select = document.getElementById(id);
+                if (select) Array.from(select.options).forEach(o => o.selected = false);
+            });
+            updateDashboard();
+        }
+    </script>
+</body>
+</html>
